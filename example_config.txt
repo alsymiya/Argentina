@@ -1,0 +1,33 @@
+# Linkage configuration — JSON object.
+# Keys: JJ, PSlice, motor, fixed_nodes, path_node.
+#
+# 4-bar with moving path node, exactly as described in wishlist.docx:
+#   joint 0 (0,0)  fixed/motor pivot
+#   joint 1 (1,2)  driven crank tip (actuator)
+#   joint 2 (4,0)  other ground pivot
+#   joint 3 (3,2)  moving joint linked to ground 2
+#   joint 4 (2,3)  path node, on the same body as joints 1 and 3
+{
+  "JJ": [
+    [0, 1, 0, 0, 0],
+    [1, 0, 0, 1, 1],
+    [0, 0, 0, 1, 0],
+    [0, 1, 1, 0, 1],
+    [0, 1, 0, 1, 0]
+  ],
+  "PSlice": [
+    [0.0, 0.0],
+    [1.0, 2.0],
+    [4.0, 0.0],
+    [3.0, 2.0],
+    [2.0, 3.0]
+  ],
+  "motor": [0, 1],
+  "fixed_nodes": [0, 2],
+  "path_node": 4
+}
+
+
+MotionGen-text for the example: 
+
+{"name":"motiongen","version":"1.1.5","mechanism":{"mode":"standard","joints":[{"id":"18a91192-2051-4d39-afb6-f9fa4429f15f","x":0,"y":0,"curveColor":"rgba(99, 179, 237, 1)","isShowCurve":true,"isShowArrows":false,"isWelded":false,"isSelected":true,"isLocked":false},{"id":"fd111588-3ff9-4643-9469-6988586d7907","x":1,"y":2,"curveColor":"rgba(99, 179, 237, 1)","isShowCurve":true,"isShowArrows":false,"isWelded":false,"isSelected":true,"isLocked":false},{"id":"7e64d2a4-0eba-4c57-983e-e9d6094e3722","x":4,"y":0,"curveColor":"rgba(99, 179, 237, 1)","isShowCurve":true,"isShowArrows":false,"isWelded":false,"isSelected":true,"isLocked":false},{"id":"648a2114-ec94-45a2-a417-17b76f059f76","x":3,"y":2,"curveColor":"rgba(99, 179, 237, 1)","isShowCurve":true,"isShowArrows":false,"isWelded":false,"isSelected":true,"isLocked":false},{"id":"49d19d22-0fa1-45a4-a091-8381a19c22f6","x":2,"y":3,"curveColor":"rgba(99, 179, 237, 1)","isShowCurve":true,"isShowArrows":false,"isWelded":false,"isSelected":true,"isLocked":false}],"slots":[],"links":[{"id":"6dc72d35-29da-4266-ac65-2e43be5bc673","paths":null,"plane":0,"jointIds":["18a91192-2051-4d39-afb6-f9fa4429f15f","fd111588-3ff9-4643-9469-6988586d7907"],"slotIds":[],"color":"rgba(104, 211, 145, 0.5)","trace":0,"isGround":false,"isSelected":true,"isHidden":false},{"id":"fe2588b0-6235-4e44-b015-417291fa8191","paths":null,"plane":0,"jointIds":["7e64d2a4-0eba-4c57-983e-e9d6094e3722","648a2114-ec94-45a2-a417-17b76f059f76"],"slotIds":[],"color":"rgba(104, 211, 145, 0.5)","trace":0,"isGround":false,"isSelected":true,"isHidden":false},{"id":"a9e462f0-86ce-4e0e-a47f-cd6afe4146cf","paths":null,"plane":0,"jointIds":["648a2114-ec94-45a2-a417-17b76f059f76","fd111588-3ff9-4643-9469-6988586d7907","49d19d22-0fa1-45a4-a091-8381a19c22f6"],"slotIds":[],"color":"rgba(104, 211, 145, 0.5)","trace":0,"isGround":false,"isSelected":true,"isHidden":false},{"id":"524ce9f6-d97e-47f6-a7ed-f1cddbc02f6e","paths":null,"plane":0,"jointIds":["18a91192-2051-4d39-afb6-f9fa4429f15f","7e64d2a4-0eba-4c57-983e-e9d6094e3722"],"slotIds":[],"color":"rgba(220, 220, 220, 0.5)","trace":0,"isGround":true,"isSelected":true,"isHidden":false}],"cylinders":[],"actuators":[{"id":"cf9e7b83-3ae1-4136-8ffa-96c37e105e85","type":"rotary","at":"18a91192-2051-4d39-afb6-f9fa4429f15f","from":"7e64d2a4-0eba-4c57-983e-e9d6094e3722","to":"fd111588-3ff9-4643-9469-6988586d7907","min":0,"max":360,"velocity":10,"color":"rgba(183, 148, 244, 0.5)","isSelected":false}],"measurements":[]},"motionSynthesis":{"points":[],"poses":[],"constraints":[]},"geometry":{"points":[],"lines":[],"circles":[],"polygons":[],"splines":[],"distances":[],"angles":[]},"shapes":[],"images":[],"settings":{"linearUnit":"in","angularUnit":"rad"}}

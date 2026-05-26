@@ -1,0 +1,25 @@
+# Argentina demo — runtime requirements.
+#
+# Install with:
+#     pip install -r requirements.txt
+#
+# Lower-bound pins are conservative; anything newer works (the code only
+# uses long-stable APIs: torch.cdist, torch.acos, torch.optim.LBFGS, etc.).
+# Google Colab ships all three of these preinstalled, so on Colab you
+# typically don't need to run pip install at all.
+
+# Core — required to import simulator / optimizer and to run the notebook.
+numpy>=1.20
+torch>=1.10
+matplotlib>=3.4
+
+# Optional ---------------------------------------------------------------
+# Jupyter is only needed if you want to run example_fourbar.ipynb
+# interactively. The .py files don't depend on it.
+jupyter>=1.0  ;  python_version >= "3.7"
+
+# Cross-platform clipboard fallback for motiongen_export.py. The script
+# first tries the OS-native tool (clip.exe on Windows, pbcopy on macOS,
+# xclip / xsel on Linux); pyperclip is only used if none of those are
+# available. Safe to omit; the script then prints the JSON for manual copy.
+pyperclip>=1.8
