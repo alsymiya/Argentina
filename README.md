@@ -105,3 +105,23 @@ different things:
   optimizer doesn't trivially shrink the linkage to zero size.
 
 Don't try to swap one for the other.
+
+---
+
+## Acknowledgements
+
+The differentiable simulator (`simulator.py`) is based on Amin Heyrani Nobari's
+linkage project from MIT 18.337:
+[ahnobari/18337-Linakge-Project](https://github.com/ahnobari/18337-Linakge-Project).
+Our modifications to that code are mostly in two places:
+
+- **Branch determination.** Handling of non-Grashof / non-rotatable mechanisms &mdash;
+  picking and tracking one assembly mode across the theta sweep, returning
+  `NaN` for unreachable samples, and the `reachable_arc` helper for joining
+  wrap-around arcs into one continuous curve.
+- **Variable naming.** Renamed to match MotionGen's own semantics
+  (`JJ`, `PSlice`, `motor`, `fixed_nodes`, `path_node`, etc.) so the same
+  field names round-trip between the Python simulator and the MotionGen
+  JSON / BSI format.
+
+Thank you to Amin for making the original implementation available.
