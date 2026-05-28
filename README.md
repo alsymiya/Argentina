@@ -1,89 +1,107 @@
-# Argentina workshop — differentiable four-bar linkage demo
+# Argentina workshop &mdash; differentiable four-bar linkages
 
-A small, self-contained PyTorch toolkit for the Argentina workshop:
-a differentiable simulator for planar four-bar linkages, a curve-matching
+A tiny PyTorch toolkit for the Argentina workshop. A differentiable
+kinematic simulator for planar four-bar linkages, a curve-matching
 optimizer that fine-tunes joint positions via L-BFGS, a freehand-drawing
-canvas for hand-drawn target curves, and a glue layer that talks to the
+canvas for hand-drawn target curves, and a thin client that talks to the
 MotionGen image-based path-synthesis backend.
 
-## Quickstart
+---
+
+## Run the demo &mdash; one click per notebook
+
+Click any badge below. The notebook opens in Google Colab on your own
+account; the Setup cell auto-downloads the helper files from this repo.
+No install, no Drive, no copy-paste.
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/alsymiya/Argentina/blob/main/1.%20draw_demo%20%28Colab%29.ipynb)
+&nbsp; **1. Draw a curve and watch it get normalized.**
+Freehand-draw a curve in the canvas. See it go through the four-stage
+geometric normalization (center &rarr; scale &rarr; PCA-rotate &rarr; reflect)
+that maps every congruent/scaled/mirrored version of the same intrinsic
+shape into the same canonical pose.
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/alsymiya/Argentina/blob/main/2.%20example_fourbar%20%28Colab%29.ipynb)
+&nbsp; **2. Differentiable simulator + optimizer.**
+The end-to-end demo: simulate the wishlist 4-bar, perturb its joints,
+fit it back to the original trace via L-BFGS, then a metric study
+(soft-chamfer / Hausdorff / soft-DTW) with wall-clock timings.
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/alsymiya/Argentina/blob/main/3.%20fourbar_compare%20%28Colab%29.ipynb)
+&nbsp; **3. Compare two four-bars.**
+You supply two configurations (initial + modified). The notebook
+simulates both, fine-tunes the modified one toward the initial trace,
+plots them side-by-side with a configurable displacement, and prints
+MotionGen JSON for both.
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/alsymiya/Argentina/blob/main/4.%20drawing_to_mechanism%20%28Colab%29.ipynb)
+&nbsp; **4. Drawing &rarr; MotionGen retrieval &rarr; differentiable refinement.**
+The merged demo. Draw a curve &rarr; POST to the MotionGen path-synthesis
+server &rarr; get *k* candidate four-bars &rarr; simulate each on top of the
+drawing &rarr; pick one &rarr; differentiable refine &rarr; export MotionGen JSON
+(text on clipboard) + BEFORE/AFTER image.
+
+That's the whole demo. The Setup cell in each notebook handles the rest.
+
+---
+
+## Run locally (optional)
+
+If you want a persistent copy on your machine instead of Colab:
 
 ```
+git clone https://github.com/alsymiya/Argentina.git
+cd Argentina
 pip install -r requirements.txt
 jupyter notebook
 ```
 
-Open the notebooks in numeric order. They build on each other but each
-runs independently.
+Then open the *non-* `(Colab)` versions of the notebooks &mdash; same content,
+but without the GitHub-download Setup cell. They expect the helper `.py`
+files to sit in the same folder.
 
-## Notebooks (run in order)
+---
 
-| # | Notebook | What it does |
-|---|---|---|
-| 1 | `1. draw_demo.ipynb`            | Freehand-draw a curve, watch the four-stage geometric normalization (center → scale → rotate-by-PCA → reflect-by-3rd-moment) lay it into canonical pose. Pure numpy, no simulator. |
-| 2 | `2. example_fourbar.ipynb`      | The end-to-end optimizer demo: simulate the wishlist 4-bar, perturb its joints, fit it back to the original trace via L-BFGS, then a metric study (soft-chamfer / hausdorff / soft-DTW) with wall-clock timings. |
-| 3 | `3. fourbar_compare.ipynb`      | Applied workflow: you supply two configurations (initial + modified), the notebook simulates both, fine-tunes the modified one toward the initial trace, plots side-by-side with a configurable displacement, and prints MotionGen JSON for both. |
-| 4 | `4. drawing_to_mechanism.ipynb` | The merged demo: draw a curve → POST to the MotionGen path-synthesis server → get k candidate four-bars → simulate each on top of the drawing → pick one → differentiable refine → export MotionGen JSON (text on clipboard) + BEFORE/AFTER image (Windows clipboard via CF_DIB, or PNG file). |
+## Going deeper
 
-Notebooks 1 and 4 use `%matplotlib widget` (`ipympl`). They have a
-defensive setup cell that installs ipympl if missing and prompts you to
-restart the kernel/runtime — that prompt is load-bearing on Colab,
-don't skip it.
+This section is for people extending the code, not workshop attendees.
 
-## Python modules
+### Python modules
 
-| File | Purpose |
+| File | Role |
 |---|---|
-| `simulator.py`       | Differentiable dyadic kinematic solver. `simulate_batch`, `simulate_batch_no_grad`, `reachable_arc`, `sort_mechanism`. |
-| `optimizer.py`       | Metrics (`ordered_l2`, `chamfer`, `hausdorff`, `soft_chamfer`, `soft_dtw`), composite-loss support, `optimize_lbfgs_nc` (closure-free L-BFGS), `fit_to_expected_path` one-shot wrapper, `normalize_curve` (bbox-normalize, torch, differentiable). |
-| `visualizer.py`      | Interactive matplotlib viewer with drag-to-move joints, an Optimize button, save image / save config. Also exports the headless `simulate()` helper. |
-| `motiongen_export.py`| `build_motiongen_json` → MotionGen JSON dict. `copy_to_clipboard` for text. Direct Win32 ctypes path that avoids the BOM bug that bit us with `clip.exe` + utf-16. |
-| `normalize.py`       | Geometric pose canonicalization (center / scale / PCA-rotate / 3rd-moment reflect). Pure numpy. *Not differentiable* — different job from `optimizer.normalize_curve`. |
-| `bsi_converter.py`   | Converts a server-side BSI candidate (`{B, S, I, p, c, error}`) to the Argentina linkage dict (`{JJ, PSlice, motor, fixed_nodes, path_node}`). RRRR + rotary actuator only. |
+| `simulator.py` | Differentiable dyadic kinematic solver. `simulate_batch`, `simulate_batch_no_grad`, `reachable_arc`, `sort_mechanism`. |
+| `optimizer.py` | Metrics (`ordered_l2`, `chamfer`, `hausdorff`, `soft_chamfer`, `soft_dtw`), composite-loss support, `optimize_lbfgs_nc` (closure-free L-BFGS), `fit_to_expected_path` wrapper, `normalize_curve` (bbox-normalize, torch, differentiable). |
+| `visualizer.py` | Interactive matplotlib viewer with drag-to-move joints + Optimize button + save image / save config. Also exports the headless `simulate()` helper. |
+| `motiongen_export.py` | `build_motiongen_json` &rarr; MotionGen JSON dict. `copy_to_clipboard` for text (Win32 ctypes, dodges the BOM bug). |
+| `normalize.py` | Geometric pose canonicalization (center / scale / PCA-rotate / 3rd-moment reflect). Pure numpy. *Not differentiable* &mdash; different job from `optimizer.normalize_curve`. |
+| `bsi_converter.py` | Converts a server-side BSI candidate (`{B, S, I, p, c, error}`) into the Argentina linkage dict (`{JJ, PSlice, motor, fixed_nodes, path_node}`). RRRR + rotary actuator only. |
 
-## CLI tools (standalone)
+### CLI tools (advanced, not used by any notebook)
 
-| File | Purpose |
-|---|---|
-| `generate_dataset.py` | Mass-produce four-bar samples via `simulate_batch_no_grad`. Saves `dataset.npz` with `configs`, `paths`, `fractions`, `modes`. `python generate_dataset.py --help` for options. |
-| `novelty.py`          | Novelty scoring for an existing dataset (link lengths + cross-product features, k-NN distance in standardized feature space). |
+- `generate_dataset.py` &mdash; mass-produce four-bar samples via batched simulation; saves `dataset.npz` with configs/paths/fractions/modes. `python generate_dataset.py --help`.
+- `novelty.py` &mdash; novelty scoring over a dataset (link lengths + cross-product features, k-NN distance in standardised feature space).
 
-Neither is imported by any notebook — they're for offline data work.
+### References
 
-## Config / data files
+[`PAPERS.md`](PAPERS.md) has a short curated list of the papers that inform
+the code &mdash; Cuturi & Blondel on soft-DTW, Liu & Nocedal on L-BFGS,
+Burmester, McCarthy & Soh, geometric-invariant normalization.
 
-| File | Purpose |
-|---|---|
-| `example_config.txt` | JSON-with-comments holding the wishlist 4-bar (5 joints, RRRR, rotary actuator at joint 0 driving joint 1, path node 4). Notebooks 2 and 3 use it as the canonical reference. |
-| `PAPERS.md`          | Curated references that inform the code (Cuturi & Blondel on soft-DTW, Liu & Nocedal on L-BFGS, Burmester, McCarthy & Soh, geometric-invariant normalization). |
-| `requirements.txt`   | Pip dependencies with per-package rationale comments. |
-
-## Running on Google Colab
-
-1. Upload the four notebooks + every `.py` file to the same Colab directory.
-2. Open the notebook you want, run the Setup cell first.
-3. If the Setup cell prints "ipympl installed — Restart session, then re-run this cell", do exactly that: `Runtime > Restart session`, re-run only the Setup cell. The `raise SystemExit` is intentional — it stops "Run all" from continuing on a stale matplotlib backend.
-
-Notebook #4 (`drawing_to_mechanism`) additionally POSTs to a public
-MotionGen synthesis endpoint baked into the Configuration cell. You can
-swap it for a different URL if you're running your own backend.
-
-## A note on the two `normalize` functions
+### The two normalisations (easy to confuse)
 
 There are two functions called `normalize*` in this repo and they do
-different things — easy to confuse:
+different things:
 
-- **`normalize.normalize(curve)`** (this module) is *geometric pose
-  canonicalization*: PCA rotation, third-moment reflection. Used at
-  the user-input boundary (e.g., the drawn curve before a MotionGen
-  KDTree lookup). **Not differentiable** — eigenvector orientations
-  flip discontinuously near isotropic covariances, the sign-of-moments
-  step is a step function.
-
+- **`normalize.normalize(curve)`** is geometric *pose canonicalization*.
+  PCA rotation, third-moment reflection. Used at the user-input boundary
+  (e.g. the drawn curve before a MotionGen KDTree lookup). **Not
+  differentiable** &mdash; eigenvector orientations flip discontinuously near
+  isotropic covariances, the sign-of-moments step is a step function.
 - **`optimizer.normalize_curve(curve)`** is a six-line *bounding-box
-  rescaling* built on torch primitives. It lives **inside** the L-BFGS
-  forward pass and the gradient of the loss has to flow back through
-  it to the joint positions. Its job is to make the loss scale-invariant
-  so the optimizer doesn't trivially shrink the linkage to zero size.
+  rescaling* on torch primitives. It lives *inside* the L-BFGS forward
+  pass and the gradient of the loss has to flow through it back to the
+  joint positions. Its job is to make the loss scale-invariant so the
+  optimizer doesn't trivially shrink the linkage to zero size.
 
 Don't try to swap one for the other.
